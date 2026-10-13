@@ -1,0 +1,45 @@
+# ---- Study area (west, south, east, north in WGS84) ----
+# Default: ~50 x 50 km patch of the Western Ghats (Koyna region, Maharashtra).
+aoi: [73.55, 17.00, 74.00, 17.45]
+crs: EPSG:32643          # UTM zone covering the AOI (change if you move the AOI)
+scale: 10                # metres per pixel (Sentinel-2 10 m bands)
+gee_project: your-gee-cloud-project-id   # Google Cloud project registered for Earth Engine
+drive_folder: deforestation_exports
+max_cloud_percent: 40
+
+# ---- Image composites (same season for every date to avoid seasonal false alarms) ----
+# train: composite used with ESA WorldCover 2021 labels to train the model
+# A / B: the two dates compared for change detection
+composites:
+  train: { start: "2020-11-01", end: "2021-03-31" }
+  A:     { start: "2023-11-01", end: "2024-03-31" }
+  B:     { start: "2025-11-01", end: "2026-03-31" }
+labels:
+  A: "Nov 2023 - Mar 2024"
+  B: "Nov 2025 - Mar 2026"
+
+paths:
+  raw: data/raw
+  processed: data/processed
+  models: outputs/models
+  figures: outputs/figures
+  outputs: outputs
+
+patch_size: 256
+min_valid_fraction: 0.9  # skip patches with too many cloud-masked pixels
+split_block: 1024        # spatial block size (px) used for location-based split
+
+train:
+  base_filters: 32
+  depth: 4
+  batch_size: 8
+  epochs: 60
+  lr: 0.001
+  seed: 42
+
+predict:
+  threshold: 0.5
+  stride: 128
+
+change:
+  min_area_ha: 0.5       # ignore cleared patches smaller than this
